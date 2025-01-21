@@ -1,18 +1,23 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 
 const router = express.Router();
 
-// Register route
-router.post("/register", async (req: Request, res: Response) => {
+// Signup route
+const signupHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { name, email, password } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: "User already exists" });
+    if (existingUser) {
+      res.status(400).json({ message: "User already exists" });
+      return;
+    }
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = new User({ name, email, password: hashedPassword });
@@ -22,19 +27,27 @@ router.post("/register", async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
-});
+};
 
 // Login route
-router.post("/login", async (req: Request, res: Response) => {
+const loginHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) {
+      res.status(400).json({ message: "Invalid credentials" });
+      return;
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch) {
+      res.status(400).json({ message: "Invalid credentials" });
+      return;
+    }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
       expiresIn: "1h",
@@ -43,6 +56,10 @@ router.post("/login", async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
-});
+};
+
+// Register routes
+router.post("/signup", signupHandler);
+router.post("/login", loginHandler);
 
 export default router;
