@@ -16,7 +16,10 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin:
+      process.env.CLIENT_URL ||
+      "http://localhost:5173" /* Client live link:https://product-hub-online.vercel.app
+    Server Live: https://product-hub-server-psi.vercel.app */,
     credentials: true,
   })
 );
@@ -24,7 +27,7 @@ app.use(
 // Routes
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Product Hub Manager Server Running...");
+  res.send("Welcome to the Meeting Room Project API!");
 });
 
 mongoose
