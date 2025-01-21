@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
 // Import routes
+import authRoutes from "./routes/authRoutes";
+import productRoutes from "./routes/productRoutes";
 
 dotenv.config();
 
@@ -18,13 +20,15 @@ app.use(
   cors({
     origin:
       process.env.CLIENT_URL ||
-      "http://localhost:5173" /* Client live link:https://product-hub-online.vercel.app
+      "http://localhost:3000" /* Client live link:https://product-hub-online.vercel.app
     Server Live: https://product-hub-server-psi.vercel.app */,
     credentials: true,
   })
 );
 
 // Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to the Meeting Room Project API!");
